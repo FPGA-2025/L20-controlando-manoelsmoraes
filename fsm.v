@@ -8,60 +8,46 @@ module fsm(
     input [3:0] fifo_words
 );
 
-    // Dados constantes
     assign fifo_data = 8'hAA;
 
-    // Estados codificados manualmente
+    reg [1:0] state, next_state;
+
     localparam WRITING        = 2'd0;
     localparam WAIT_TO_STOP   = 2'd1;
     localparam STOPPED        = 2'd2;
     localparam WAIT_TO_START  = 2'd3;
 
-    reg [1:0] state, next_state;
-
-    // Transição de estado (reset síncrono)
-    always @(posedge clk) begin
+    // Estado
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n)
-            state = WRITING;
+            state <= WRITING;
         else
-            state = next_state;
+            state <= next_state;
     end
 
-    // Lógica de transição
+    // Transição de estados
     always @(*) begin
         case (state)
-            WRITING: begin
-                if (fifo_words == 5)
-                    next_state = WAIT_TO_STOP;
-                else
-                    next_state = WRITING;
-            end
+            WRITING:
+                next_state = (fifo_words == 5) ? WAIT_TO_STOP : WRITING;
 
-            WAIT_TO_STOP: begin
+            WAIT_TO_STOP:
                 next_state = STOPPED;
-            end
 
-            STOPPED: begin
-                if (fifo_words <= 2)
-                    next_state = WAIT_TO_START;
-                else
-                    next_state = STOPPED;
-            end
+            STOPPED:
+                next_state = (fifo_words <= 2) ? WAIT_TO_START : STOPPED;
 
-            WAIT_TO_START: begin
+            WAIT_TO_START:
                 next_state = WRITING;
-            end
 
-            default: next_state = WRITING;
+            default:
+                next_state = WRITING;
         endcase
     end
 
-    // Sinal de controle wr_en
+    // wr_en só habilita em estado WRITING
     always @(*) begin
-        case (state)
-            WRITING:        wr_en = 1;
-            default:        wr_en = 0;
-        endcase
+        wr_en = (state == WRITING);
     end
 
 endmodule
