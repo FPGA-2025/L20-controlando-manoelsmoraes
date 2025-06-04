@@ -4,7 +4,7 @@ module fsm(
 
     output reg wr_en,
     output [7:0] fifo_data,
-
+    
     input [3:0] fifo_words
 );
 
@@ -45,9 +45,9 @@ module fsm(
         endcase
     end
 
-    // wr_en só habilita em estado WRITING
+    // wr_en habilitado em WRITING e WAIT_TO_START
     always @(*) begin
-        wr_en = (state == WRITING);
+        wr_en = (state == WRITING) || (state == WAIT_TO_START);
     end
 
 endmodule
