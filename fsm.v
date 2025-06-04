@@ -22,9 +22,9 @@ module fsm(
     // Transição de estado (reset síncrono)
     always @(posedge clk) begin
         if (!rst_n)
-            state <= WRITING;
+            state = WRITING;
         else
-            state <= next_state;
+            state = next_state;
     end
 
     // Lógica de transição

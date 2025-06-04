@@ -24,28 +24,28 @@ module fifo(
 
     always @(posedge clk) begin
         if (!rst_n) begin
-            fifo_words <= 0;
-            rd_ptr <= 0;
-            wr_ptr <= 0;
+            fifo_words = 0;
+            rd_ptr = 0;
+            wr_ptr = 0;
         end else begin
             // Write
             if (wr_en && !full) begin
-                mem[wr_ptr] <= data_in;
-                wr_ptr <= wr_ptr + 1;
+                mem[wr_ptr] = data_in;
+                wr_ptr = wr_ptr + 1;
             end
 
             // Read
             if (rd_en && !empty) begin
-                data_out <= mem[rd_ptr];
-                rd_ptr <= rd_ptr + 1;
+                data_out = mem[rd_ptr];
+                rd_ptr = rd_ptr + 1;
             end
 
             // Count logic
             case ({wr_en && !full, rd_en && !empty})
-                2'b10: fifo_words <= fifo_words + 1; // Write only
-                2'b01: fifo_words <= fifo_words - 1; // Read only
-                2'b11: fifo_words <= fifo_words;     // Both
-                default: fifo_words <= fifo_words;   // Neither
+                2'b10: fifo_words = fifo_words + 1; // Write only
+                2'b01: fifo_words = fifo_words - 1; // Read only
+                2'b11: fifo_words = fifo_words;     // Both
+                default: fifo_words = fifo_words;   // Neither
             endcase
         end
     end
